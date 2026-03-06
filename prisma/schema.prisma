@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum AlbumVisibility {
+  FAMILY
+  PRIVATE
+}
+
+model Person {
+  id         String   @id @default(cuid())
+  firstName  String
+  lastName   String
+  middleName String?
+  sex        Sex      @default(UNKNOWN)
+  birthDate  DateTime?
+  birthYear  Int?
+  deathDate  DateTime?
+  notes      String?
+  isLiving   Boolean  @default(true)
+
+  fatherId String?
+  motherId String?
+
+  father Person? @relation("PersonFather", fields: [fatherId], references: [id], onDelete: SetNull)
+  mother Person? @relation("PersonMother", fields: [motherId], references: [id], onDelete: SetNull)
+
+  childrenFromFather Person[] @relation("PersonFather")
+  childrenFromMother Person[] @relation("PersonMother")
+
+  taggedPhotos PhotoPerson[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([lastName, firstName])
+  @@index([fatherId])
+  @@index([motherId])
+}
+
+model Album {
+  id          String          @id @default(cuid())
+  title       String
+  description String?
+  eventDate   DateTime?
+  visibility  AlbumVisibility @default(FAMILY)
+
+  photos Photo[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([eventDate])
+}
+
+model Photo {
+  id          String    @id @default(cuid())
+  albumId     String
+  storageKey  String
+  takenAt     DateTime?
+  description String?
+
+  album Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  persons PhotoPerson[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([albumId])
+  @@index([takenAt])
+}
+
+model PhotoPerson {
+  photoId  String
+  personId String
+
+  x Float?
+  y Float?
+  w Float?
+  h Float?
+
+  photo  Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  taggedAt DateTime @default(now())
+
+  @@id([photoId, personId])
+  @@index([personId])
+}
