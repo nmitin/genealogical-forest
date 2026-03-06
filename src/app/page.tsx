@@ -1,5 +1,6 @@
+import Link from "next/link";
+
 import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -23,7 +24,12 @@ export default function Home() {
             I can now scaffold database models for people, albums and photos.
           </p>
           <div className="mt-4">
-            <Button>Start DB schema setup</Button>
+            <Link
+              className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/80"
+              href="/persons"
+            >
+              Open persons catalog
+            </Link>
           </div>
         </section>
       </main>
